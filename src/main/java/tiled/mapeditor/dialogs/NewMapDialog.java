@@ -1,18 +1,7 @@
-/*
- *  Tiled Map Editor, (c) 2004-2006
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  Adam Turk <aturk@biggeruniverse.com>
- *  Bjorn Lindeijer <bjorn@lindeijer.nl>
- */
-
 package tiled.mapeditor.dialogs;
 
 import tiled.core.Map;
+import tiled.core.ZXScreen;
 import tiled.mapeditor.Resources;
 import tiled.mapeditor.widget.IntegerSpinner;
 import tiled.mapeditor.widget.VerticalStaticJPanel;
@@ -27,7 +16,6 @@ import java.util.prefs.Preferences;
 public class NewMapDialog extends JDialog implements ActionListener {
     private static final String DIALOG_TITLE = Resources.getString("dialog.newmap.title");
     private static final String MAPSIZE_TITLE = Resources.getString("dialog.newmap.mapsize.title");
-    private static final String TILESIZE_TITLE = Resources.getString("dialog.newmap.tilesize.title");
     private static final String WIDTH_LABEL = Resources.getString("dialog.newmap.width.label");
     private static final String HEIGHT_LABEL = Resources.getString("dialog.newmap.height.label");
     private static final String MAPTYPE_LABEL = Resources.getString("dialog.newmap.maptype.label");
@@ -36,11 +24,12 @@ public class NewMapDialog extends JDialog implements ActionListener {
     private static final String ISOMETRIC_MAPTYPE = Resources.getString("general.maptype.isometric");
     private static final String HEXAGONAL_MAPTYPE = Resources.getString("general.maptype.hexagonal");
     private static final String SHIFTED_MAPTYPE = Resources.getString("general.maptype.shifted");
-    private static final String ORTHOGONAL_MAPTYPE = Resources.getString("general.maptype.orthogonal");
-    private final Preferences prefs = TiledConfiguration.node("dialog/newmap");
+    private static final String FTONTAL_MAPTYPE = Resources.getString("general.maptype.frontal");
+
+
+    private final Preferences prefs = TiledConfiguration.node("dialog/newzxmap");
     private Map newMap;
     private IntegerSpinner mapWidth, mapHeight;
-    private IntegerSpinner tileWidth, tileHeight;
     private JComboBox mapTypeChooser;
 
     public NewMapDialog(JFrame parent) {
@@ -54,67 +43,36 @@ public class NewMapDialog extends JDialog implements ActionListener {
     private void init() {
         // Load dialog defaults
 
-        int defaultMapWidth = prefs.getInt("mapWidth", 64);
-        int defaultMapHeight = prefs.getInt("mapHeight", 64);
-        int defaultTileWidth = prefs.getInt("tileWidth", 35);
-        int defaultTileHeight = prefs.getInt("tileHeight", 35);
+        int defaultMapWidth = prefs.getInt("mapWidth", 3);
+        int defaultMapHeight = prefs.getInt("mapHeight", 3);
 
         // Create the primitives
-
         mapWidth = new IntegerSpinner(defaultMapWidth, 1);
         mapHeight = new IntegerSpinner(defaultMapHeight, 1);
-        tileWidth = new IntegerSpinner(defaultTileWidth, 1);
-        tileHeight = new IntegerSpinner(defaultTileHeight, 1);
 
         // Map size fields
-
         JPanel mapSize = new VerticalStaticJPanel();
         mapSize.setLayout(new GridBagLayout());
         mapSize.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder(MAPSIZE_TITLE),
                 BorderFactory.createEmptyBorder(0, 5, 5, 5)));
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.EAST;
-        c.fill = GridBagConstraints.NONE;
-        c.insets = new Insets(5, 0, 0, 5);
-        mapSize.add(new JLabel(WIDTH_LABEL), c);
-        c.gridy = 1;
-        mapSize.add(new JLabel(HEIGHT_LABEL), c);
-        c.insets = new Insets(5, 0, 0, 0);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 1;
-        c.gridy = 0;
-        c.weightx = 1;
-        mapSize.add(mapWidth, c);
-        c.gridy = 1;
-        mapSize.add(mapHeight, c);
-
-        // Tile size fields
-
-        JPanel tileSize = new VerticalStaticJPanel();
-        tileSize.setLayout(new GridBagLayout());
-        tileSize.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(TILESIZE_TITLE),
-                BorderFactory.createEmptyBorder(0, 5, 5, 5)));
-        c.gridx = 0;
-        c.gridy = 0;
-        c.weightx = 0;
-        c.fill = GridBagConstraints.NONE;
-        c.insets = new Insets(5, 0, 0, 5);
-        tileSize.add(new JLabel(WIDTH_LABEL), c);
-        c.gridy = 1;
-        tileSize.add(new JLabel(HEIGHT_LABEL), c);
-        c.insets = new Insets(5, 0, 0, 0);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 1;
-        c.gridy = 0;
-        c.weightx = 1;
-        tileSize.add(tileWidth, c);
-        c.gridy = 1;
-        tileSize.add(tileHeight, c);
+        GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.anchor = GridBagConstraints.EAST;
+        gridBagConstraints.fill = GridBagConstraints.NONE;
+        gridBagConstraints.insets = new Insets(5, 0, 0, 5);
+        mapSize.add(new JLabel(WIDTH_LABEL), gridBagConstraints);
+        gridBagConstraints.gridy = 1;
+        mapSize.add(new JLabel(HEIGHT_LABEL), gridBagConstraints);
+        gridBagConstraints.insets = new Insets(5, 0, 0, 0);
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.weightx = 1;
+        mapSize.add(mapWidth, gridBagConstraints);
+        gridBagConstraints.gridy = 1;
+        mapSize.add(mapHeight, gridBagConstraints);
 
         // OK and Cancel buttons
-
         JButton okButton = new JButton(OK_BUTTON);
         JButton cancelButton = new JButton(CANCEL_BUTTON);
         okButton.addActionListener(this);
@@ -128,40 +86,35 @@ public class NewMapDialog extends JDialog implements ActionListener {
         buttons.add(cancelButton);
 
         // Map type and name inputs
-
         mapTypeChooser = new JComboBox();
-        mapTypeChooser.addItem(ORTHOGONAL_MAPTYPE);
-        mapTypeChooser.addItem(ISOMETRIC_MAPTYPE);
-        mapTypeChooser.addItem(HEXAGONAL_MAPTYPE);
+        mapTypeChooser.addItem(FTONTAL_MAPTYPE);
+        //mapTypeChooser.addItem(ISOMETRIC_MAPTYPE);
+        //mapTypeChooser.addItem(HEXAGONAL_MAPTYPE);
         // TODO: Enable views when implemented decently
         //mapTypeChooser.addItem(SHIFTED_MAPTYPE);
 
         JPanel miscPropPanel = new VerticalStaticJPanel();
         miscPropPanel.setLayout(new GridBagLayout());
         miscPropPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-        c.gridx = 0;
-        c.gridy = 0;
-        c.weightx = 0;
-        c.fill = GridBagConstraints.NONE;
-        c.insets = new Insets(5, 0, 0, 5);
-        miscPropPanel.add(new JLabel(MAPTYPE_LABEL), c);
-        c.insets = new Insets(5, 0, 0, 0);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 1;
-        c.gridy = 0;
-        c.weightx = 1;
-        miscPropPanel.add(mapTypeChooser, c);
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.weightx = 0;
+        gridBagConstraints.fill = GridBagConstraints.NONE;
+        gridBagConstraints.insets = new Insets(5, 0, 0, 5);
+        miscPropPanel.add(new JLabel(MAPTYPE_LABEL), gridBagConstraints);
+        gridBagConstraints.insets = new Insets(5, 0, 0, 0);
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.weightx = 1;
+        miscPropPanel.add(mapTypeChooser, gridBagConstraints);
 
         // Putting two size panels next to eachother
-
         JPanel sizePanels = new JPanel();
         sizePanels.setLayout(new BoxLayout(sizePanels, BoxLayout.X_AXIS));
         sizePanels.add(mapSize);
-        sizePanels.add(Box.createRigidArea(new Dimension(5, 0)));
-        sizePanels.add(tileSize);
 
         // Main panel
-
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -180,13 +133,14 @@ public class NewMapDialog extends JDialog implements ActionListener {
         return newMap;
     }
 
-    public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals(OK_BUTTON)) {
-            int w = mapWidth.intValue();
-            int h = mapHeight.intValue();
-            int twidth = tileWidth.intValue();
-            int theight = tileHeight.intValue();
-            int orientation = Map.MDO_ORTHO;
+    @Override
+    public void actionPerformed(ActionEvent actionEvent) {
+        if (actionEvent.getActionCommand().equals(OK_BUTTON)) {
+            int width = mapWidth.intValue() * ZXScreen.getWidthInTiles();
+            int height = mapHeight.intValue() * ZXScreen.getHeightInTiles();
+            int tileWidth = ZXScreen.getTileSize16();
+            int tileHeight = ZXScreen.getTileSize16();
+            int orientation = Map.MDO_FRONT;
             String mapTypeString = (String) mapTypeChooser.getSelectedItem();
 
             if (mapTypeString.equals(ISOMETRIC_MAPTYPE)) {
@@ -197,9 +151,9 @@ public class NewMapDialog extends JDialog implements ActionListener {
                 orientation = Map.MDO_SHIFTED;
             }
 
-            newMap = new Map(w, h);
-            newMap.setTileWidth(twidth);
-            newMap.setTileHeight(theight);
+            newMap = new Map(width, height);
+            newMap.setTileWidth(tileWidth);
+            newMap.setTileHeight(tileHeight);
             newMap.addLayer();
             newMap.setOrientation(orientation);
 
@@ -207,8 +161,8 @@ public class NewMapDialog extends JDialog implements ActionListener {
 
             prefs.putInt("mapWidth", mapWidth.intValue());
             prefs.putInt("mapHeight", mapHeight.intValue());
-            prefs.putInt("tileWidth", tileWidth.intValue());
-            prefs.putInt("tileHeight", tileHeight.intValue());
+            prefs.putInt("tileWidth", ZXScreen.getTileSize16());
+            prefs.putInt("tileHeight", ZXScreen.getTileSize16());
         }
         dispose();
     }

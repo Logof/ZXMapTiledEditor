@@ -21,7 +21,6 @@ import tiled.mapeditor.util.ConfirmingFileChooser;
 import tiled.mapeditor.widget.IntegerSpinner;
 import tiled.mapeditor.widget.VerticalStaticJPanel;
 import tiled.util.TiledConfiguration;
-import tiled.view.OrthoMapView;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

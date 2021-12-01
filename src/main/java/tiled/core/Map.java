@@ -27,7 +27,7 @@ public class Map extends MultilayerPlane implements MapLayerChangeListener {
     /**
      * Orthogonal.
      */
-    public static final int MDO_ORTHO = 1;
+    public static final int MDO_FRONT = 1;
     /**
      * Isometric.
      */
@@ -41,12 +41,11 @@ public class Map extends MultilayerPlane implements MapLayerChangeListener {
      */
     public static final int MDO_SHIFTED = 5;
     private final List<MapChangeListener> mapChangeListeners = new LinkedList<MapChangeListener>();
-    private final List<MapParallaxChangeListener> mapParallaxChangeListeners = new LinkedList<MapParallaxChangeListener>();
     private Vector<MapLayer> specialLayers;
     private Vector<TileSet> tilesets;
     private LinkedList<MapObject> objects;
     private int tileWidth, tileHeight;
-    private int orientation = MDO_ORTHO;
+    private int orientation = MDO_FRONT;
     private Properties properties;
     private String filename;
     private float eyeDistance = 100;
@@ -84,14 +83,6 @@ public class Map extends MultilayerPlane implements MapLayerChangeListener {
      */
     public void removeMapChangeListener(MapChangeListener listener) {
         mapChangeListeners.remove(listener);
-    }
-
-    public void addMapParallaxChangeListener(MapParallaxChangeListener listener) {
-        mapParallaxChangeListeners.add(listener);
-    }
-
-    public void removeMapParallaxChangeListener(MapParallaxChangeListener listener) {
-        mapParallaxChangeListeners.remove(listener);
     }
 
 
@@ -567,7 +558,7 @@ public class Map extends MultilayerPlane implements MapLayerChangeListener {
 
     /**
      * Returns the orientation of this map. Orientation will be one of
-     * {@link Map#MDO_ISO}, {@link Map#MDO_ORTHO}, {@link Map#MDO_HEX},
+     * {@link Map#MDO_ISO}, {@link Map#MDO_FRONT}, {@link Map#MDO_HEX},
      * and {@link Map#MDO_SHIFTED}.
      *
      * @return The orientation from the enumerated set
@@ -621,7 +612,6 @@ public class Map extends MultilayerPlane implements MapLayerChangeListener {
         if (this.eyeDistance == eyeDistance)
             return;
         this.eyeDistance = eyeDistance;
-        fireParallaxChangeEvent(new MapParallaxChangeEvent(this, -1, MapParallaxChangeEvent.ChangeType.EYE_VIEWPLANE_DISTANCE));
     }
 
     public int getViewportWidth() {
@@ -638,12 +628,6 @@ public class Map extends MultilayerPlane implements MapLayerChangeListener {
 
     public void setViewportHeight(int h) {
         viewportHeight = h;
-    }
-
-    void fireParallaxChangeEvent(MapParallaxChangeEvent mapParallaxChangeEvent) {
-        for (MapParallaxChangeListener l : mapParallaxChangeListeners) {
-            l.parallaxParameterChanged(mapParallaxChangeEvent);
-        }
     }
 
     public void layerChanged(MapLayer layerIndex, MapLayerChangeEvent e) {

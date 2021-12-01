@@ -11,20 +11,20 @@ public class ZXScreen {
 
     }
 
-    public static int getHeight() {
+    public static int getHeightInTiles() {
         return HEIGHT;
     }
 
-    public static int getHeightInPixelsBySizeTile(int tileSizeHeight) {
-        return HEIGHT * tileSizeHeight;
+    public static int getHeightInPixels() {
+        return HEIGHT * TILE_SIZE_16;
     }
 
-    public static int getWidth() {
+    public static int getWidthInTiles() {
         return WIDTH;
     }
 
-    public static int getWidthInPixelsBySizeTile(int tileSizeWidth) {
-        return WIDTH * tileSizeWidth;
+    public static int getWidthInPixels() {
+        return WIDTH * TILE_SIZE_16;
     }
 
     public static int getTileSize16() {

@@ -186,7 +186,7 @@ public class HexMapView extends MapView {
     }
 
     @Override
-    protected void paintZXScreenNumbers(Graphics2D g2d) {
+    protected void paintScreenNumbers(Graphics2D g2d) {
 
     }
 
@@ -241,9 +241,9 @@ public class HexMapView extends MapView {
         //TiledLogger.getLogger().info("clip " + clipRect.x + "," + clipRect.y
         //    + "-" + clipRect.width + "," + clipRect.height);
 
-        Point topLeft = screenToTileCoords(
+        Point topLeft = screenToTileCoordinates(
                 layer, (int) clipRect.getMinX(), (int) clipRect.getMinY());
-        Point bottomRight = screenToTileCoords(
+        Point bottomRight = screenToTileCoordinates(
                 layer, (int) clipRect.getMaxX(), (int) clipRect.getMaxY());
         int startX = (int) topLeft.getX();
         int startY = (int) topLeft.getY();
@@ -384,9 +384,9 @@ public class HexMapView extends MapView {
 
         // Determine area to draw from clipping rectangle
         Rectangle clipRect = g2d.getClipBounds();
-        Point topLeft = screenToTileCoords(
+        Point topLeft = screenToTileCoordinates(
                 currentLayer, (int) clipRect.getMinX(), (int) clipRect.getMinY());
-        Point bottomRight = screenToTileCoords(
+        Point bottomRight = screenToTileCoordinates(
                 currentLayer, (int) clipRect.getMaxX(), (int) clipRect.getMaxY());
         int startX = (int) topLeft.getX();
         int startY = (int) topLeft.getY();
@@ -439,7 +439,7 @@ public class HexMapView extends MapView {
     }
 
     @Override
-    protected void paintZXScreenGrid(Graphics2D g2d) {
+    protected void paintScreenGrid(Graphics2D g2d) {
 
     }
 
@@ -465,7 +465,7 @@ public class HexMapView extends MapView {
      * @param screenY The y coordinate of a point in the viewport.
      * @return The corresponding tile coords as Point.
      */
-    public Point screenToTileCoords(MapLayer layer, int screenX, int screenY) {
+    public Point screenToTileCoordinates(MapLayer layer, int screenX, int screenY) {
         //TiledLogger.getLogger().info(
         //  "screen coords " + screenX + "," + screenY);
 
@@ -523,10 +523,10 @@ public class HexMapView extends MapView {
         fourTiles[2] = new Point(col + 1, row);
         fourTiles[3] = new Point(col + 1, row + 1);
 
-        fourPoints[0] = tileToScreenCoords(offset, tileSize, col, row);
-        fourPoints[1] = tileToScreenCoords(offset, tileSize, col, row + 1);
-        fourPoints[2] = tileToScreenCoords(offset, tileSize, col + 1, row);
-        fourPoints[3] = tileToScreenCoords(offset, tileSize, col + 1, row + 1);
+        fourPoints[0] = tileToScreenCoordinates(offset, tileSize, col, row);
+        fourPoints[1] = tileToScreenCoordinates(offset, tileSize, col, row + 1);
+        fourPoints[2] = tileToScreenCoordinates(offset, tileSize, col + 1, row);
+        fourPoints[3] = tileToScreenCoordinates(offset, tileSize, col + 1, row + 1);
 
         // find point with min.distance
         double minDist = 2 * (map.getTileWidth() + map.getTileHeight());
@@ -681,7 +681,7 @@ public class HexMapView extends MapView {
      * @param y The y coordinate of the tile.
      * @return The point at the centre of the Hex as Point.
      */
-    public Point tileToScreenCoords(Point offset, Dimension tileSize, int x, int y) {
+    public Point tileToScreenCoordinates(Point offset, Dimension tileSize, int x, int y) {
         Point p = getTopLeftCornerOfTile(tileSize, x, y);
         return new Point(
                 offset.x + (int) (p.getX()) + (int) (tileSize.width / 2 + 0.49),
@@ -693,7 +693,7 @@ public class HexMapView extends MapView {
     }
 
     protected void paintObjectGroup(Graphics2D g, ObjectGroup og) {
-        // NOTE: Direct copy from OrthoMapView (candidate for generalization)
+        // NOTE: Direct copy from FrontZXMapView (candidate for generalization)
         Iterator itr = og.getObjects();
 
         while (itr.hasNext()) {

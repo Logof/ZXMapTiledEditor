@@ -268,7 +268,7 @@ public class XMLMapWriter implements MapWriter {
         w.writeAttribute("version", "1.0");
 
         switch (map.getOrientation()) {
-            case Map.MDO_ORTHO:
+            case Map.MDO_FRONT:
                 w.writeAttribute("orientation", "orthogonal");
                 break;
             case Map.MDO_ISO:

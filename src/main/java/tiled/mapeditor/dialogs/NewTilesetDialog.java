@@ -23,7 +23,6 @@ import tiled.mapeditor.util.cutter.TileCutter;
 import tiled.mapeditor.widget.ColorButton;
 import tiled.mapeditor.widget.IntegerSpinner;
 import tiled.mapeditor.widget.VerticalStaticJPanel;
-import tiled.view.OrthoMapView;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

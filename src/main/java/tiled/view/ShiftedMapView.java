@@ -62,7 +62,7 @@ public class ShiftedMapView extends MapView {
     }
 
     @Override
-    protected void paintZXScreenNumbers(Graphics2D g2d) {
+    protected void paintScreenNumbers(Graphics2D g2d) {
 
     }
 
@@ -125,7 +125,7 @@ public class ShiftedMapView extends MapView {
     }
 
     @Override
-    protected void paintZXScreenGrid(Graphics2D g2d) {
+    protected void paintScreenGrid(Graphics2D g2d) {
 
     }
 
@@ -139,7 +139,7 @@ public class ShiftedMapView extends MapView {
     public void repaintRegion(MapLayer layer, Rectangle region) {
     }
 
-    public Point screenToTileCoords(MapLayer layer, int x, int y) {
+    public Point screenToTileCoordinates(MapLayer layer, int x, int y) {
         return new Point(0, 0);
     }
 
@@ -153,7 +153,7 @@ public class ShiftedMapView extends MapView {
         return new Polygon();
     }
 
-    public Point tileToScreenCoords(Point offset, Dimension tileDimension, int x, int y) {
+    public Point tileToScreenCoordinates(Point offset, Dimension tileDimension, int x, int y) {
         return new Point(0, 0);
     }
 }

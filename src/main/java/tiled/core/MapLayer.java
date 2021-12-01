@@ -396,7 +396,6 @@ public abstract class MapLayer implements Cloneable {
         this.viewPlaneDistance = viewPlaneDistance;
         if (getMap() == null)
             return;
-        getMap().fireParallaxChangeEvent(new MapParallaxChangeEvent(getMap(), getMap().getLayerVector().indexOf(this), MapParallaxChangeEvent.ChangeType.LAYER_VIEWPLANE_DISTANCE));
     }
 
     public boolean isViewPlaneInfinitelyFarAway() {
@@ -409,7 +408,6 @@ public abstract class MapLayer implements Cloneable {
         this.viewPlaneInfinitelyFarAway = inifitelyFarAway;
         if (getMap() == null)
             return;
-        getMap().fireParallaxChangeEvent(new MapParallaxChangeEvent(getMap(), getMap().getLayerVector().indexOf(this), MapParallaxChangeEvent.ChangeType.LAYER_VIEWPLANE_DISTANCE));
     }
 
     private void fireRenamed(String newName, String oldName) {

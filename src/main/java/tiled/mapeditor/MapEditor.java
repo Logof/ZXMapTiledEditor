@@ -61,7 +61,7 @@ public class MapEditor implements ActionListener, MouseListener,
     /**
      * Current release version.
      */
-    private Logger log = LoggerFactory.getLogger(MapEditor.class);
+    private final Logger log = LoggerFactory.getLogger(MapEditor.class);
 
     public static final String version = "0.7.2";
     // Constants and the like
@@ -116,7 +116,7 @@ public class MapEditor implements ActionListener, MouseListener,
     private final Action mergeLayerDownAction, mergeAllLayersAction;
     private final Action addObjectGroupAction;
     private final Action showLayerPropertiesAction;
-    private final ToggleParallaxModeAction toggleParallaxModeAction;
+
     private final Cursor curDefault;
     private final Cursor curEyed;
     private Map currentMap;
@@ -156,7 +156,7 @@ public class MapEditor implements ActionListener, MouseListener,
     //private JList       editHistoryList;
     private MiniMapViewer miniMap;
     private JPopupMenu layerPopupMenu;
-    private ParallaxEditorPanel parallaxEditorPanel;
+
     private SmartSplitPane rightSplit;
     private SmartSplitPane mainSplit;
     private SmartSplitPane paletteSplit;
@@ -173,7 +173,7 @@ public class MapEditor implements ActionListener, MouseListener,
     private AboutDialog aboutDialog;
     private MapLayerEdit paintEdit;
     private FloatablePanel layersPanel;
-    private FloatablePanel parallaxPanel;
+
     private FloatablePanel tilesetsPanel;
     private ToolSemantic currentToolSemantic;
 
@@ -240,7 +240,7 @@ public class MapEditor implements ActionListener, MouseListener,
         mergeAllLayersAction = new MergeAllLayersAction(this);
         addObjectGroupAction = new AddObjectGroupAction(this);
         showLayerPropertiesAction = new ShowLayerPropertiesAction(this);
-        toggleParallaxModeAction = new ToggleParallaxModeAction();
+
 
         // Create our frame
         appFrame = new JFrame(Resources.getString("dialog.main.title"));
@@ -261,9 +261,6 @@ public class MapEditor implements ActionListener, MouseListener,
 
         setCurrentMap(null);
         updateRecent(null);
-
-        // apply state from settings for actions
-        toggleParallaxModeAction.applyState();
 
         appFrame.setVisible(true);
 
@@ -371,15 +368,15 @@ public class MapEditor implements ActionListener, MouseListener,
         createData();
         createStatusBar();
 
-        parallaxEditorPanel = new ParallaxEditorPanel(this);
+
 
         // todo: Make continuouslayout an option. Because it can be slow, some
         // todo: people may prefer not to have that.
         layersPanel = new FloatablePanel(getAppFrame(), dataPanel, PANEL_LAYERS, "layers");
-        parallaxPanel = new FloatablePanel(getAppFrame(), parallaxEditorPanel, PANEL_PARALLAX, "parallax");
 
 
-        rightSplit = new SmartSplitPane(JSplitPane.VERTICAL_SPLIT, true, layersPanel.getContentPane(), parallaxPanel.getContentPane(), "rightSplit");
+
+        rightSplit = new SmartSplitPane(JSplitPane.VERTICAL_SPLIT, true, layersPanel.getContentPane(), null, "rightSplit");
         rightSplit.setOneTouchExpandable(true);
         rightSplit.setResizeWeight(0.5);
         rightSplit.setBorder(null);
@@ -425,8 +422,9 @@ public class MapEditor implements ActionListener, MouseListener,
         mapEventAdapter.addListener(close);
 
         JMenu fileMenu = new JMenu(Resources.getString("menu.file"));
+        //TODO Удалить оригинальный диалог, когда будет стабильная версия
+        //fileMenu.add(new TMenuItem(new NewMapAction(this, saveAction)));
         fileMenu.add(new TMenuItem(new NewMapAction(this, saveAction)));
-        fileMenu.add(new TMenuItem(new NewZXMapAction(this, saveAction)));
         fileMenu.add(new TMenuItem(new OpenMapAction(this, saveAction)));
         fileMenu.add(recentMenu);
         fileMenu.add(save);
@@ -577,7 +575,7 @@ public class MapEditor implements ActionListener, MouseListener,
         viewMenu.add(gridMenuItem);
         viewMenu.add(gridZXScreenMenuItem);
         viewMenu.add(cursorMenuItem);
-        viewMenu.add(new JCheckBoxMenuItem(toggleParallaxModeAction));
+
         //TODO: Enable when boudary drawing code finished.
         //viewMenu.add(boundaryMenuItem);
         viewMenu.add(coordinatesMenuItem);
@@ -934,7 +932,6 @@ public class MapEditor implements ActionListener, MouseListener,
         setBrush(sb);
 
         tabbedTilesetsPane.setMap(currentMap);
-        parallaxEditorPanel.setCurrentMap(currentMap);
 
         if (!mapLoaded) {
             mapEventAdapter.fireEvent(MapEventAdapter.ME_MAPINACTIVE);
@@ -994,8 +991,6 @@ public class MapEditor implements ActionListener, MouseListener,
                 }
             }
             setCurrentTile(firstTile);
-
-            toggleParallaxModeAction.applyState();
 
             currentMap.addLayerSpecial(cursorHighlight);
         }
@@ -1128,7 +1123,7 @@ public class MapEditor implements ActionListener, MouseListener,
             return;
         }
 
-        Point tile = mapView.screenToTileCoords(layer, event.getX(), event.getY());
+        Point tile = mapView.screenToTileCoordinates(layer, event.getX(), event.getY());
 
         if (mouseButton == MouseEvent.BUTTON3) {
             if (layer instanceof TileLayer) {
@@ -1362,11 +1357,11 @@ public class MapEditor implements ActionListener, MouseListener,
     public void mousePressed(MouseEvent e) {
         MapLayer layer = getCurrentLayer();
 
-        Point tile = mapView.screenToTileCoords(layer, e.getX(), e.getY());
+        Point tile = mapView.screenToTileCoordinates(layer, e.getX(), e.getY());
         mouseButton = e.getButton();
         bMouseIsDown = true;
         bMouseIsDragging = false;
-        mousePressLocation = mapView.screenToTileCoords(layer, e.getX(), e.getY());
+        mousePressLocation = mapView.screenToTileCoordinates(layer, e.getX(), e.getY());
         mouseInitialPressLocation = mousePressLocation;
 
         if (mouseButton == MouseEvent.BUTTON2 ||
@@ -1456,7 +1451,7 @@ public class MapEditor implements ActionListener, MouseListener,
 
         if (/*bMouseIsDragging && */currentPointerState == PS_PAINT ||
                 currentPointerState == PS_ADDOBJ) {
-            Point tile = mapView.screenToTileCoords(
+            Point tile = mapView.screenToTileCoordinates(
                     layer, event.getX(), event.getY());
             int minx = Math.min(limp.x, tile.x);
             int miny = Math.min(limp.y, tile.y);
@@ -1545,7 +1540,7 @@ public class MapEditor implements ActionListener, MouseListener,
         Point tile = null;
         MapLayer currentLayer = getCurrentLayer();
         if (currentLayer != null)
-            tile = mapView.screenToTileCoords(getCurrentLayer(), e.getX(), e.getY());
+            tile = mapView.screenToTileCoordinates(getCurrentLayer(), e.getX(), e.getY());
         updateTileCoordsLabel(tile);
         updateCursorHighlight(tile);
     }
@@ -1556,8 +1551,8 @@ public class MapEditor implements ActionListener, MouseListener,
         doMouse(e);
 
         MapLayer layer = getCurrentLayer();
-        mousePressLocation = mapView.screenToTileCoords(layer, e.getX(), e.getY());
-        Point tile = mapView.screenToTileCoords(layer, e.getX(), e.getY());
+        mousePressLocation = mapView.screenToTileCoordinates(layer, e.getX(), e.getY());
+        Point tile = mapView.screenToTileCoordinates(layer, e.getX(), e.getY());
 
         updateTileCoordsLabel(tile);
         updateCursorHighlight(tile);
@@ -2272,39 +2267,6 @@ public class MapEditor implements ActionListener, MouseListener,
 
                 marqueeSelection = null;
             }
-        }
-    }
-
-    private class ToggleParallaxModeAction extends AbstractAction {
-        public ToggleParallaxModeAction() {
-            super(Resources.getString("action.parallaxmode.toggle.name"));
-            putValue(ACCELERATOR_KEY,
-                    KeyStroke.getKeyStroke("control shift P"));
-            putValue(SHORT_DESCRIPTION,
-                    Resources.getString("action.parallaxmode.toggle.description"));
-            putValue(SELECTED_KEY, retrieve());
-        }
-
-        private boolean retrieve() {
-            return prefs.node("display").getBoolean("enableParallaxMode", false);
-        }
-
-        private void store(boolean b) {
-            prefs.node("display").putBoolean("enableParallaxMode", b);
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            boolean b = !retrieve();
-            store(b);
-            applyState();
-        }
-
-        void applyState() {
-            boolean b = retrieve();
-            if (MapEditor.this.mapView != null)
-                MapEditor.this.mapView.setParallaxModeEnabled(b);
-            parallaxPanel.setVisible(b);
-            putValue(SELECTED_KEY, b);
         }
     }
 

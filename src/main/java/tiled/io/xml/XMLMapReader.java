@@ -186,7 +186,7 @@ public class XMLMapReader implements MapReader {
         if ("isometric".equalsIgnoreCase(o)) {
             map.setOrientation(Map.MDO_ISO);
         } else if ("orthogonal".equalsIgnoreCase(o)) {
-            map.setOrientation(Map.MDO_ORTHO);
+            map.setOrientation(Map.MDO_FRONT);
         } else if ("hexagonal".equalsIgnoreCase(o)) {
             map.setOrientation(Map.MDO_HEX);
         } else if ("shifted".equalsIgnoreCase(o)) {
@@ -196,9 +196,8 @@ public class XMLMapReader implements MapReader {
         }
     }
 
-    private Object unmarshalClass(Class reflector, Node node)
-            throws InstantiationException, IllegalAccessException,
-            InvocationTargetException {
+    private Object unmarshalClass(Class reflector, Node node) throws InstantiationException, IllegalAccessException,
+                                                                     InvocationTargetException {
         Constructor constructor = null;
         try {
             constructor = reflector.getConstructor(null);
@@ -208,21 +207,21 @@ public class XMLMapReader implements MapReader {
             e1.printStackTrace();
             return null;
         }
-        Object o = constructor.newInstance(null);
+        Object object = constructor.newInstance(null);
         Node n;
 
         Method[] methods = reflector.getMethods();
-        NamedNodeMap nnm = node.getAttributes();
+        NamedNodeMap namedNodeMap = node.getAttributes();
 
-        if (nnm != null) {
-            for (int i = 0; i < nnm.getLength(); i++) {
-                n = nnm.item(i);
+        if (namedNodeMap != null) {
+            for (int i = 0; i < namedNodeMap.getLength(); i++) {
+                n = namedNodeMap.item(i);
 
                 try {
                     int j = reflectFindMethodByName(reflector,
                             "set" + n.getNodeName());
                     if (j >= 0) {
-                        reflectInvokeMethod(o, methods[j],
+                        reflectInvokeMethod(object, methods[j],
                                 new String[]{n.getNodeValue()});
                     } else {
                         logger.warn("Unsupported attribute '" +
@@ -234,7 +233,7 @@ public class XMLMapReader implements MapReader {
                 }
             }
         }
-        return o;
+        return object;
     }
 
     private Image unmarshalImage(Node t, String baseDir) throws IOException {

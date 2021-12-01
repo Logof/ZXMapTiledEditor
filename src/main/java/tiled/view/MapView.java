@@ -86,15 +86,11 @@ public abstract class MapView extends JPanel implements Scrollable {
             try {
                 MapView.propertyFlagImage = Resources.getImage("propertyflag-12.png");
             } catch (Exception e) {
+                log.info(e.getLocalizedMessage());
             }
         }
 
         this.map = map;
-        map.addMapParallaxChangeListener(new MapParallaxChangeListener() {
-            public void parallaxParameterChanged(MapParallaxChangeEvent e) {
-                repaint();
-            }
-        });
         setOpaque(true);
     }
 
@@ -111,8 +107,8 @@ public abstract class MapView extends JPanel implements Scrollable {
         int orientation = p.getOrientation();
         if (orientation == Map.MDO_ISO) {
             mapView = new IsoMapView(p);
-        } else if (orientation == Map.MDO_ORTHO) {
-            mapView = new OrthoMapView(p);
+        } else if (orientation == Map.MDO_FRONT) {
+            mapView = new FrontZXMapView(p);
         } else if (orientation == Map.MDO_HEX) {
             mapView = new HexMapView(p);
         } else if (orientation == Map.MDO_SHIFTED) {
@@ -295,10 +291,10 @@ public abstract class MapView extends JPanel implements Scrollable {
     /// @param    layer    The layer to calculate the parallax offset for
     /// @returns    The parallax offset to shift this layer by
     protected Point calculateParallaxOffsetZoomed(MapLayer layer) {
-        Point p = calculateParallaxOffset(layer);
-        p.x *= zoom;
-        p.y *= zoom;
-        return p;
+        Point point = calculateParallaxOffset(layer);
+        point.x *= zoom;
+        point.y *= zoom;
+        return point;
     }
 
     public void toggleMode(int modeModifier) {
@@ -529,7 +525,7 @@ public abstract class MapView extends JPanel implements Scrollable {
             }
 
             g2d.setStroke(new BasicStroke());
-            paintZXScreenGrid(g2d);
+            paintScreenGrid(g2d);
         }
 
         if (getMode(PF_COORDINATES)) {
@@ -541,7 +537,7 @@ public abstract class MapView extends JPanel implements Scrollable {
         if (getMode(PF_ZX_SCREEN_COORDINATES)) {
             g2d.setColor(gridColor);
             g2d.setComposite(AlphaComposite.SrcOver);
-            paintZXScreenNumbers(g2d);
+            paintScreenNumbers(g2d);
         }
 
         //if (editor != null && editor.getCurrentLayer() instanceof TileLayer) {
@@ -588,7 +584,7 @@ public abstract class MapView extends JPanel implements Scrollable {
         }
     }
 
-    protected abstract void paintZXScreenNumbers(Graphics2D g2d);
+    protected abstract void paintScreenNumbers(Graphics2D g2d);
 
     public void paintSubMap(MultilayerPlane m, Graphics2D g2d,
                             float mapOpacity) {
@@ -712,7 +708,7 @@ public abstract class MapView extends JPanel implements Scrollable {
      *
      * @param g2d the graphics context to draw the grid onto
      */
-    protected abstract void paintZXScreenGrid(Graphics2D g2d);
+    protected abstract void paintScreenGrid(Graphics2D g2d);
 
     /**
      * Draws the coordinates on each tile.
@@ -735,7 +731,7 @@ public abstract class MapView extends JPanel implements Scrollable {
 
     // Conversion functions
 
-    public abstract Point screenToTileCoords(MapLayer layer, int x, int y);
+    public abstract Point screenToTileCoordinates(MapLayer layer, int x, int y);
 
     /**
      * Returns the pixel coordinates on the map based on the given screen
@@ -775,7 +771,7 @@ public abstract class MapView extends JPanel implements Scrollable {
      * @param y Y coordinate of the tile in tile coordinates
      * @return the point in screen space
      */
-    public abstract Point tileToScreenCoords(Point zoomedOffset, Dimension zoomedTileSize, int x, int y);
+    public abstract Point tileToScreenCoordinates(Point zoomedOffset, Dimension zoomedTileSize, int x, int y);
 
     /// This method calls tileToScreenCoords(Point, Dimension, int, int) with
     /// the point returned from calculateParallaxOffsetZoomed(layer) and
@@ -783,9 +779,9 @@ public abstract class MapView extends JPanel implements Scrollable {
     /// multiplied by the current zoom level.
     /// This method is final because it is simply considered a convenience
     /// method. Subclasses are advised to override the other overload instead.
-    public final Point tileToScreenCoords(MapLayer layer, int x, int y) {
+    public final Point tileToScreenCoordinates(MapLayer layer, int x, int y) {
         Dimension zoomedTileSize = new Dimension((int) (layer.getTileWidth() * zoom), (int) (layer.getTileHeight() * zoom));
-        return tileToScreenCoords(calculateParallaxOffsetZoomed(layer), zoomedTileSize, x, y);
+        return tileToScreenCoordinates(calculateParallaxOffsetZoomed(layer), zoomedTileSize, x, y);
     }
 
     /**
